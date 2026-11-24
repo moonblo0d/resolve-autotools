@@ -1,11 +1,13 @@
 """In-memory stand-in for the DaVinci Resolve scripting API (only what resolve_autotools uses).
 
-Method names and return types follow the official README (Resolve 20.1).
+Method names and return types follow the official README (Resolve 20.1); clip naming and
+timeline settings were checked against a live Resolve 20.1 run.
 """
 
 from __future__ import annotations
 
 import os
+import re
 
 from resolve_autotools.media import AUDIO_EXT, IMAGE_EXT
 from resolve_autotools.timecode import FrameRate, frames_to_tc
@@ -127,9 +129,13 @@ class FakeMediaPool:
         created = []
         for item in items:
             if isinstance(item, dict):
-                pattern = os.path.basename(item["FilePath"])
-                frames = item["EndIndex"] - item["StartIndex"] + 1
-                clip = FakeMediaPoolItem(pattern, item["FilePath"], "Video", frames)
+                # Live Resolve 20.1 names sequences "shot_[0001-0048].png" and reports File Path the same way.
+                start, end = item["StartIndex"], item["EndIndex"]
+                folder, pattern = os.path.split(item["FilePath"])
+                match = re.search(r"%0?(\d*)d", pattern)
+                width = int(match.group(1) or 0)
+                name = pattern[:match.start()] + f"[{str(start).zfill(width)}-{str(end).zfill(width)}]" + pattern[match.end():]
+                clip = FakeMediaPoolItem(name, os.path.join(folder, name), "Video", end - start + 1)
             else:
                 name = os.path.basename(item)
                 ext = name.rsplit(".", 1)[-1].lower()

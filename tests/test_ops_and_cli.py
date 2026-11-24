@@ -39,7 +39,7 @@ class ImportTest(unittest.TestCase):
         project = self.resolve.GetProjectManager().GetCurrentProject()
         timeline = ops.find_timeline(project, "Assembly")
         names = [i.GetName() for i in timeline.GetItemListInTrack("video", 1)]
-        self.assertEqual(names, ["b_roll2.mov", "b_roll10.mov", "shot_%04d.png"])  # audio left out
+        self.assertEqual(names, ["b_roll2.mov", "b_roll10.mov", "shot_[0001-0003].png"])  # audio left out
 
     def test_reuses_bin_and_makes_timeline_name_unique(self):
         ops.import_folder(self.resolve, self.folder, timeline_name="Assembly")
