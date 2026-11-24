@@ -1,0 +1,5 @@
+timecode,color,name,note,duration
+00:00:02:00,Red,Jump cut,Remove the jump cut before the title,12
+00:00:05:12,Yellow,Audio,Music is too loud under the voice,
+00:00:09:00,Green,Approved,Great transition - keep it,1
+01:00:12:00,Blue,Absolute TC,Absolute timecodes work too,24
