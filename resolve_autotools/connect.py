@@ -46,8 +46,9 @@ def _load_script_module():
             sys.modules.pop("DaVinciResolveScript", None)
             raise ResolveError(
                 f"Found the Resolve scripting module but fusionscript failed to load ({type(exc).__name__}: "
-                f"{exc or 'no details'}). Use a 64-bit Python version supported by your Resolve "
-                f"(see README, section 'Setup'), not {sys.version.split()[0]}."
+                f"{exc or 'no details'}). Scripting from outside Resolve needs DaVinci Resolve Studio; "
+                f"with the free version run the tools inside Resolve (Workspace > Console or Scripts). "
+                f"See README, section 'Setup'."
             ) from exc
         return sys.modules["DaVinciResolveScript"]
 
