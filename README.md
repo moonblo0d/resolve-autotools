@@ -58,10 +58,14 @@ tests/          43 тести + фейковий Resolve API за офіційн
 ## Налаштування
 
 1. **DaVinci Resolve** має бути запущений, з відкритим проєктом.
-2. `Preferences → System → General → External scripting using → Local` (для запуску з терміналу).
-3. **64-бітний Python, сумісний з вашим Resolve.** Скрипт сам знаходить модуль `DaVinciResolveScript`
-   у стандартних місцях Windows / macOS / Linux або за змінною `RESOLVE_SCRIPT_API`.
-4. Без сторонніх залежностей — лише стандартна бібліотека Python.
+2. **З терміналу (CLI) — лише DaVinci Resolve Studio.** У безкоштовній версії зовнішній доступ до API
+   закритий: `fusionscript` не ініціалізується за будь-якої версії Python, і скрипт про це прямо повідомляє.
+   У Studio: `Preferences → System → General → External scripting using → Local`.
+3. **Безкоштовна версія — запуск усередині Resolve** (`Workspace → Console → Py3` або меню `Workspace → Scripts`).
+   Для цього Resolve має «бачити» Python: ставте його класичним інсталятором з python.org
+   (Python, встановлений новим менеджером `py install`, Resolve 20.1 не знаходить — «Python 3 was not found»).
+4. Скрипт сам знаходить модуль `DaVinciResolveScript` у стандартних місцях Windows / macOS / Linux
+   або за змінною `RESOLVE_SCRIPT_API`. Без сторонніх залежностей — лише стандартна бібліотека.
 
 **Усередині Resolve:** скопіюйте файл з `menu_scripts/` у
 `%APPDATA%\Blackmagic Design\DaVinci Resolve\Support\Fusion\Scripts\Utility` (Windows),
@@ -82,10 +86,10 @@ python -m unittest discover -s tests -t .
 ## Статус і чесні нотатки
 
 - Логіка покрита тестами; виклики API звірені з офіційною документацією Resolve 20.1.
-- Запуск на реальному Resolve 20.1 перевірявся: модуль `fusionscript` від Resolve **не ініціалізувався
-  на Python 3.13 і 3.14**. Тепер у такому разі скрипт показує зрозуміле повідомлення замість трейсбеку.
-  Для роботи з Resolve використовуйте старішу версію Python (напр. 3.10–3.12); повний прогін на живому
-  Resolve — наступний крок.
+- Спроба запуску на реальному **безкоштовному** Resolve 20.1 (Python 3.12 / 3.13 / 3.14) виявила дві речі:
+  зовнішній API доступний лише в Studio (`fusionscript` → `SystemError`), а консоль Resolve не бачить Python,
+  встановлений через `py install`. Перше тепер обробляється зрозумілим повідомленням замість трейсбеку
+  (і покрито тестом), друге описано в «Налаштуванні». Повний прогін команд на живому Resolve — наступний крок.
 - Drop-frame підтримується для 29.97 / 59.94; інші частоти рахуються як non-drop.
 
 ---
