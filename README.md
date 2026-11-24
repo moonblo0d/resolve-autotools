@@ -67,7 +67,16 @@ tests/          43 тести + фейковий Resolve API за офіційн
 4. Скрипт сам знаходить модуль `DaVinciResolveScript` у стандартних місцях Windows / macOS / Linux
    або за змінною `RESOLVE_SCRIPT_API`. Без сторонніх залежностей — лише стандартна бібліотека.
 
-**Усередині Resolve:** скопіюйте файл з `menu_scripts/` у
+**Безкоштовна версія — будь-яка команда з консолі Resolve** (`Workspace → Console → Py3`):
+
+```python
+import sys; sys.path.insert(0, r"C:\tools\resolve-autotools")
+from resolve_autotools import cli
+cli.main(["import", r"D:\footage\Day 01", "--timeline", "Assembly"], resolve=resolve)
+cli.main(["shotlist", r"D:\shots.csv"], resolve=resolve)
+```
+
+**Меню Resolve:** скопіюйте файл з `menu_scripts/` у
 `%APPDATA%\Blackmagic Design\DaVinci Resolve\Support\Fusion\Scripts\Utility` (Windows),
 задайте змінну `RESOLVE_AUTOTOOLS_PATH` = шлях до цієї папки — і скрипт з'явиться в
 `Workspace → Scripts`. Він експортує shot list поточного таймлайну на робочий стіл.
@@ -81,15 +90,21 @@ python -m unittest discover -s tests -t .
 43 тести: таймкоди (non-drop і drop-frame з еталонними значеннями, напр. `01:00:00;00` = 107892 кадри),
 пошук послідовностей на реальних файлах у тимчасовій папці, розбір CSV з помилками, а також
 імпорт, маркери, shot list, черга рендеру й CLI на **фейковому Resolve API**, методи й типи якого
-відповідають офіційному README Blackmagic (Resolve 20.1).
+відповідають офіційному README Blackmagic (Resolve 20.1) і звірені з живим запуском (див. нижче).
 
 ## Статус і чесні нотатки
 
-- Логіка покрита тестами; виклики API звірені з офіційною документацією Resolve 20.1.
-- Спроба запуску на реальному **безкоштовному** Resolve 20.1 (Python 3.12 / 3.13 / 3.14) виявила дві речі:
-  зовнішній API доступний лише в Studio (`fusionscript` → `SystemError`), а консоль Resolve не бачить Python,
-  встановлений через `py install`. Перше тепер обробляється зрозумілим повідомленням замість трейсбеку
-  (і покрито тестом), друге описано в «Налаштуванні». Повний прогін команд на живому Resolve — наступний крок.
+- **Перевірено на живому DaVinci Resolve 20.1** (безкоштовна версія, консоль Py3, Python 3.12.10)
+  на згенерованих PNG-секвенціях у тимчасовому проєкті:
+  - `import` → 4 кліпи: `shotA_[0001-0048].png`, `shotB_…`, а секвенція з пропуском кадрів 13–14 розбита на 2 кліпи
+    з попередженням, `notes.txt` пропущено; таймлайн `Assembly` зібрано в правильному порядку;
+  - `markers` → маркер з кольором, назвою, нотаткою й тривалістю 12 кадрів; маркери за межами таймлайну
+    (4 с 22 к) відхилені з поясненням;
+  - `shotlist` → 4 рядки з точними record in/out (`01:00:04:12 → 01:00:04:22`);
+  - `render` → пресет `H.264 Master`, файл `autotools-live-test_Assembly.mov` відрендерено.
+- Фейковий API для тестів після цього підігнано під реальну поведінку Resolve (назви секвенцій).
+- Що виявив живий запуск: зовнішній API доступний лише в Studio (у безкоштовній `fusionscript` → `SystemError`,
+  тепер це зрозуміле повідомлення, покрите тестом), а консоль Resolve не бачить Python від `py install`.
 - Drop-frame підтримується для 29.97 / 59.94; інші частоти рахуються як non-drop.
 
 ---
